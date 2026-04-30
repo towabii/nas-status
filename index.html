@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Connecting to NAS...</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background: #f4f4f9; }
+        .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <h2>NASへ接続中...</h2>
+    <div class="loader"></div>
+    <p id="status">最新のIPアドレスを取得しています。</p>
+
+    <script>
+        // --- 設定項目 ---
+        const RAW_IP_URL = 'https://raw.githubusercontent.com/あなたのユーザー名/リポジトリ名/main/ip.txt';
+        const NAS_PORT = '5000'; // あなたのNASのポート番号（DSMなら通常5000か5001）
+        // ---------------
+
+        async function connectToNas() {
+            const statusLabel = document.getElementById('status');
+            try {
+                // 1. GitHubから最新のIPを取得
+                const response = await fetch(RAW_IP_URL);
+                if (!response.ok) throw new Error('IPの取得に失敗しました');
+                
+                let ip = await response.text();
+                ip = ip.trim(); // 改行などを除去
+
+                // 2. 接続先URLを構築
+                const targetUrl = `http://${ip}:${NAS_PORT}`;
+                
+                statusLabel.innerText = `IP: ${ip} を確認。転送します...`;
+
+                // 3. リダイレクト実行
+                window.location.href = targetUrl;
+
+            } catch (error) {
+                statusLabel.innerText = 'エラー: ' + error.message;
+                console.error(error);
+            }
+        }
+
+        // 実行
+        connectToNas();
+    </script>
+</body>
+</html>
